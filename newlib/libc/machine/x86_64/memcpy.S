@@ -14,20 +14,23 @@
   SOTYPE_FUNCTION(memcpy)
 
 SYM (memcpy):
-  movq    rdi, rax                /* Store destination in return value */
-  cmpq    $16, rdx
+  movl    edi, eax                /* Store destination in return value */
+  movl    esi, esi                /* Only need to do read sandboxing once */
+  addq    r15, rsi
+  cmpl    $16, edx
   jb      byte_copy
 
-  movq    rdi, r8                 /* Align destination on quad word boundary */
-  andq    $7, r8
+  movl    edi, r8d                /* Align destination on quad word boundary */
+  andl    $7, r8d
   jz      quadword_aligned
-  movq    $8, rcx
-  subq    r8, rcx
-  subq    rcx, rdx
-  rep     movsb
+  movl    $8, ecx
+  subl    r8d, ecx
+  subl    ecx, edx
+  
+  rep     movsb (rsi), %nacl:(rdi), r15
 
 quadword_aligned:
-  cmpq    $256, rdx
+  cmpl    $256, edx
   jb      quadword_copy
 
   pushq    rax
@@ -35,8 +38,8 @@ quadword_aligned:
   pushq    r13
   pushq    r14
 
-  movq    rdx, rcx                /* Copy 128 bytes at a time with minimum cache polution */
-  shrq    $7, rcx
+  movl    edx, ecx                /* Copy 128 bytes at a time with minimum cache polution */
+  shrl    $7, ecx
 
   .p2align 4
 loop:
@@ -52,14 +55,14 @@ loop:
   movq    48 (rsi), r13
   movq    56 (rsi), r14
 
-  movntiq rax,    (rdi)
-  movntiq r8 ,  8 (rdi)
-  movntiq r9 , 16 (rdi)
-  movntiq r10, 24 (rdi)
-  movntiq r11, 32 (rdi)
-  movntiq r12, 40 (rdi)
-  movntiq r13, 48 (rdi)
-  movntiq r14, 56 (rdi)
+  movntiq rax, %nacl:     (r15,rdi)
+  movntiq r8 , %nacl:   8 (r15,rdi)
+  movntiq r9 , %nacl:  16 (r15,rdi)
+  movntiq r10, %nacl:  24 (r15,rdi)
+  movntiq r11, %nacl:  32 (r15,rdi)
+  movntiq r12, %nacl:  40 (r15,rdi)
+  movntiq r13, %nacl:  48 (r15,rdi)
+  movntiq r14, %nacl:  56 (r15,rdi)
 
   movq     64 (rsi), rax
   movq     72 (rsi), r8
@@ -70,44 +73,47 @@ loop:
   movq    112 (rsi), r13
   movq    120 (rsi), r14
 
-  movntiq rax,  64 (rdi)
-  movntiq r8 ,  72 (rdi)
-  movntiq r9 ,  80 (rdi)
-  movntiq r10,  88 (rdi)
-  movntiq r11,  96 (rdi)
-  movntiq r12, 104 (rdi)
-  movntiq r13, 112 (rdi)
-  movntiq r14, 120 (rdi)
+  movntiq rax, %nacl:  64 (r15,rdi)
+  movntiq r8 , %nacl:  72 (r15,rdi)
+  movntiq r9 , %nacl:  80 (r15,rdi)
+  movntiq r10, %nacl:  88 (r15,rdi)
+  movntiq r11, %nacl:  96 (r15,rdi)
+  movntiq r12, %nacl: 104 (r15,rdi)
+  movntiq r13, %nacl: 112 (r15,rdi)
+  movntiq r14, %nacl: 120 (r15,rdi)
 
   leaq    128 (rsi), rsi
-  leaq    128 (rdi), rdi
+  leal    128 (rdi), edi
 
-  dec     rcx
+  dec     ecx
   jnz     loop
 
   sfence
-  movq    rdx, rcx
-  andq    $127, rcx
-  rep     movsb
+  movl    edx, ecx
+  andl    $127, ecx
+  rep     movsb (rsi), %nacl:(rdi), r15
   popq    r14
   popq    r13
   popq    r12
   popq    rax
-  ret
+  pop     r11
+  nacljmp r11d, r15
 
 
 byte_copy:
-  movq    rdx, rcx
-  rep     movsb
-  ret
+  movl    edx, ecx
+  rep     movsb (rsi), %nacl:(rdi), r15
+  pop     r11
+  nacljmp r11d, r15
 
 
 quadword_copy:
-  movq    rdx, rcx
-  shrq    $3, rcx
+  movl    edx, ecx
+  shrl    $3, ecx
   .p2align 4
-  rep     movsq
-  movq    rdx, rcx
-  andq    $7, rcx
-  rep     movsb                   /* Copy the remaining bytes */
-  ret
+  rep     movsq (rsi), %nacl:(rdi), r15
+  movl    edx, ecx
+  andl    $7, ecx
+  rep     movsb (rsi), %nacl:(rdi), r15 /* Copy the remaining bytes */
+  pop     r11
+  nacljmp r11d, r15

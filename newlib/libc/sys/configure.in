@@ -32,6 +32,7 @@ if test -n "${sys_dir}"; then
 	linux) AC_CONFIG_SUBDIRS(linux) ;;
 	m88kbug) AC_CONFIG_SUBDIRS(m88kbug) ;;
 	mmixware) AC_CONFIG_SUBDIRS(mmixware) ;;
+	nacl) AC_CONFIG_SUBDIRS(nacl) ;;
 	netware) AC_CONFIG_SUBDIRS(netware) ;;
 	rdos) AC_CONFIG_SUBDIRS(rdos) ;;
 	rtems) AC_CONFIG_SUBDIRS(rtems) ;;

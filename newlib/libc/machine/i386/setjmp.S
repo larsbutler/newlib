@@ -29,6 +29,7 @@
        SOTYPE_FUNCTION(setjmp)
        SOTYPE_FUNCTION(longjmp)
  
+  .p2align NACLENTRYALIGN
 SYM (setjmp):
 
 	pushl	ebp
@@ -59,8 +60,11 @@ SYM (setjmp):
 	popl	edi
 	movl	$0,eax
 	leave
-	ret
+	/* ret */
+  popl ecx
+  nacljmp ecx
 
+  .p2align NACLENTRYALIGN
 SYM (longjmp):
 	pushl	ebp
 	movl	esp,ebp
@@ -75,7 +79,6 @@ SYM (longjmp):
 
 	movl	24(edi),ebp
 
-       __CLI
 	movl	28(edi),esp
 	
 	pushl	32(edi)	
@@ -86,6 +89,7 @@ SYM (longjmp):
 	movl	12(edi),edx
 	movl	16(edi),esi
 	movl	20(edi),edi
-       __STI
 
-	ret
+	/* ret */
+  popl ecx
+  nacljmp ecx

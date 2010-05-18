@@ -640,6 +640,8 @@ if [ "${ml_toplevel_p}" = yes ]; then
 # We must freshly configure each subdirectory.  This bit of code is
 # actually partially stolen from the main configure script.  FIXME.
 
+multilib_host=${host}
+
 if [ -n "${multidirs}" ] && [ -z "${ml_norecursion}" ]; then
 
   if [ "${ml_verbose}" = --verbose ]; then
@@ -748,6 +750,9 @@ if [ -n "${multidirs}" ] && [ -z "${ml_norecursion}" ]; then
 	GFORTRAN_=$GFORTRAN' '
 	GOC_=$GOC' '
     else
+	if [ "${ml_dir}" = "32" -a "${host}" = "x86_64-pc-nacl" ]; then
+	  multilib_host="i386-pc-nacl"
+	fi
 	# Create a regular expression that matches any string as long
 	# as ML_POPDIR.
 	popdir_rx=`echo "${ML_POPDIR}" | sed 's,.,.,g'`
@@ -860,7 +865,8 @@ if [ -n "${multidirs}" ] && [ -z "${ml_norecursion}" ]; then
 
     if eval ${ml_config_env} ${ml_config_shell} ${ml_recprog} \
 	--with-multisubdir=${ml_dir} --with-multisrctop=${multisrctop} \
-	${ac_configure_args} ${ml_config_env} ${ml_srcdiroption} ; then
+	${ac_configure_args} ${ml_config_env} ${ml_srcdiroption} \
+	--host=${multilib_host} ; then
       true
     else
       exit 1

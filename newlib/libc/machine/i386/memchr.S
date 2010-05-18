@@ -13,6 +13,7 @@
 	.global	SYM (memchr)
        SOTYPE_FUNCTION(memchr)
 
+  .p2align NACLENTRYALIGN
 SYM (memchr):
 	pushl	ebp
 	movl	esp,ebp
@@ -111,4 +112,6 @@ L20:
 	leal	-4(ebp),esp
 	popl	edi
 	leave
-	ret
+	/* ret */
+  popl ecx
+  nacljmp ecx

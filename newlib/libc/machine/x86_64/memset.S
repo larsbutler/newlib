@@ -14,75 +14,80 @@
   SOTYPE_FUNCTION(memset)
 
 SYM (memset):
-  movq    rdi, r9                 /* Save return value */
-  movq    rsi, rax
-  movq    rdx, rcx
-  cmpq    $16, rdx
+  movl    esi, esi                /* Only need to do read sandboxing once */
+  addq    r15 ,rsi
+  movl    edi, r9d                /* Save return value */
+  movl    esi, eax
+  movl    edx, ecx
+  cmpl    $16, edx
   jb      byte_set
 
-  movq    rdi, r8                 /* Align on quad word boundary */
-  andq    $7, r8
+  movl    edi, r8d                /* Align on quad word boundary */
+  andl    $7, r8d
   jz      quadword_aligned
-  movq    $8, rcx
-  subq    r8, rcx
-  subq    rcx, rdx
-  rep     stosb
-  movq    rdx, rcx
+  movl    $8, ecx
+  subl    r8d, ecx
+  subl    ecx, edx
+  rep     stosb al, %nacl:(rdi), r15
+  movl    edx, ecx
 
 quadword_aligned:
   movabs  $0x0101010101010101, r8
   movzbl  sil, eax
   imul    r8, rax
-  cmpq    $256, rdx
+  cmpl    $256, edx
   jb      quadword_set
 
-  shrq    $7, rcx                 /* Store 128 bytes at a time with minimum cache polution */
+  shrl    $7, ecx                 /* Store 128 bytes at a time with minimum cache polution */
 
   .p2align 4
 loop:
-  movntiq rax,     (rdi)
-  movntiq rax,   8 (rdi)
-  movntiq rax,  16 (rdi)
-  movntiq rax,  24 (rdi)
-  movntiq rax,  32 (rdi)
-  movntiq rax,  40 (rdi)
-  movntiq rax,  48 (rdi)
-  movntiq rax,  56 (rdi)
-  movntiq rax,  64 (rdi)
-  movntiq rax,  72 (rdi)
-  movntiq rax,  80 (rdi)
-  movntiq rax,  88 (rdi)
-  movntiq rax,  96 (rdi)
-  movntiq rax, 104 (rdi)
-  movntiq rax, 112 (rdi)
-  movntiq rax, 120 (rdi)
+  movntiq rax, %nacl:     (r15,rdi)
+  movntiq rax, %nacl:   8 (r15,rdi)
+  movntiq rax, %nacl:  16 (r15,rdi)
+  movntiq rax, %nacl:  24 (r15,rdi)
+  movntiq rax, %nacl:  32 (r15,rdi)
+  movntiq rax, %nacl:  40 (r15,rdi)
+  movntiq rax, %nacl:  48 (r15,rdi)
+  movntiq rax, %nacl:  56 (r15,rdi)
+  movntiq rax, %nacl:  64 (r15,rdi)
+  movntiq rax, %nacl:  72 (r15,rdi)
+  movntiq rax, %nacl:  80 (r15,rdi)
+  movntiq rax, %nacl:  88 (r15,rdi)
+  movntiq rax, %nacl:  96 (r15,rdi)
+  movntiq rax, %nacl: 104 (r15,rdi)
+  movntiq rax, %nacl: 112 (r15,rdi)
+  movntiq rax, %nacl: 120 (r15,rdi)
 
-  leaq    128 (rdi), rdi
+  leal    128 (rdi), edi
 
-  dec     rcx
+  dec     ecx
   jnz     loop
 
   sfence
-  movq    rdx, rcx
-  andq    $127, rcx
-  rep     stosb
-  movq    r9, rax
-  ret
+  movl    edx, ecx
+  andl    $127, ecx
+  rep     stosb al, %nacl:(rdi), r15
+  movl    r9d, eax
+  pop     r11
+  nacljmp r11d, r15
 
 
 byte_set:
-  rep     stosb
-  movq    r9, rax
-  ret
+  rep     stosb al, %nacl:(rdi), r15
+  movl    r9d, eax
+  pop     r11
+  nacljmp r11d, r15
 
 
 quadword_set:
-  shrq    $3, rcx
+  shrl    $3, ecx
   .p2align 4
-  rep     stosq
-  movq    rdx, rcx
-  andq    $7, rcx
-  rep     stosb                   /* Store the remaining bytes */
-  movq    r9, rax
-  ret
+  rep     stosq rax, %nacl:(rdi), r15
+  movl    edx, ecx
+  andl    $7, ecx
+  rep     stosb al, %nacl:(rdi), r15 /* Store the remaining bytes */
+  movl    r9d, eax
+  pop     r11
+  nacljmp r11d, r15
 

@@ -344,6 +344,10 @@ case "${host}" in
 	stdio64_dir=stdio64
 	xdr_dir=xdr
 	;;
+  *-*-nacl*)
+	sys_dir=nacl
+	posix_dir=posix
+	;;
   *-*-netware*)
 	signal_dir=
 	sys_dir=netware

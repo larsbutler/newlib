@@ -13,6 +13,7 @@
 	.global SYM (memcpy)
        SOTYPE_FUNCTION(memcpy)
 
+  .p2align NACLENTRYALIGN
 SYM (memcpy):
 
 	pushl ebp
@@ -71,4 +72,6 @@ SYM (memcpy):
 	popl edi
 	popl esi
 	leave
-	ret
+	/* ret */
+  popl ecx
+  nacljmp ecx

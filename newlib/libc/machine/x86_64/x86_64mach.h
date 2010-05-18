@@ -49,6 +49,15 @@
 #define ebp REG(ebp)
 #define esp REG(esp)
 
+#define r8d  REG(r8d)
+#define r9d  REG(r9d)
+#define r10d REG(r10d)
+#define r11d REG(r11d)
+#define r12d REG(r12d)
+#define r13d REG(r13d)
+#define r14d REG(r14d)
+#define r15d REG(r15d)
+
 #define st0 REG(st)
 #define st1 REG(st(1))
 #define st2 REG(st(2))

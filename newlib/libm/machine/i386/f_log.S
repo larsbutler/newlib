@@ -24,6 +24,7 @@ There is no error checking or setting of errno.
 	.global SYM (_f_log)
        SOTYPE_FUNCTION(_f_log)
 
+  .p2align NACLENTRYALIGN
 SYM (_f_log):
 	pushl ebp
 	movl esp,ebp
@@ -35,6 +36,8 @@ SYM (_f_log):
 	fyl2x
 
 	leave
-	ret
+	/* ret */
+  popl ecx
+  nacljmp ecx
 
 #endif

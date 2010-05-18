@@ -13,6 +13,7 @@
 	.global SYM (memmove)
        SOTYPE_FUNCTION(memmove)
 
+  .p2align NACLENTRYALIGN
 SYM (memmove):
 
 	pushl ebp
@@ -143,4 +144,6 @@ SYM (memmove):
 	popl edi
 	popl esi
 	leave
-	ret
+	/* ret */
+  popl ecx
+  nacljmp ecx

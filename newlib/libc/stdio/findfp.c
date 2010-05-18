@@ -162,8 +162,8 @@ _VOID
 _DEFUN(_cleanup_r, (ptr),
        struct _reent *ptr)
 {
-  _CAST_VOID _fwalk(ptr, fclose);
-  /* _CAST_VOID _fwalk (ptr, fflush); */	/* `cheating' */
+  /* _CAST_VOID _fwalk(ptr, fclose); */
+  _CAST_VOID _fwalk (ptr, fflush);	/* Invoked from __newlib_thread_exit (). */
 }
 
 #ifndef _REENT_ONLY

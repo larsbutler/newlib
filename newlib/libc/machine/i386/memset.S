@@ -13,6 +13,7 @@
 	.global SYM (memset)
        SOTYPE_FUNCTION(memset)
 
+  .p2align NACLENTRYALIGN
 SYM (memset):
 
 	pushl ebp
@@ -96,4 +97,6 @@ SYM (memset):
 	leal -4(ebp),esp
 	popl edi
 	leave
-	ret
+	/* ret */
+  popl ecx
+  nacljmp ecx

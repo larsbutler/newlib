@@ -24,6 +24,7 @@ There is no error checking or setting of errno.
 	.global SYM (_f_atan2f)
        SOTYPE_FUNCTION(_f_atan2f)
 
+  .p2align NACLENTRYALIGN
 SYM (_f_atan2f):
 	pushl ebp
 	movl esp,ebp
@@ -32,6 +33,8 @@ SYM (_f_atan2f):
 	fpatan
 
 	leave
-	ret
+	/* ret */
+  popl ecx
+  nacljmp ecx
 
 #endif

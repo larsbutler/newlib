@@ -13,6 +13,7 @@
 	.global SYM (strchr)
        SOTYPE_FUNCTION(strchr)
 
+  .p2align NACLENTRYALIGN
 SYM (strchr):
 
 	pushl ebp
@@ -111,7 +112,9 @@ L19:
 	popl ebx
 	popl edi
 	leave
-	ret
+	/* ret */
+  popl ecx
+  nacljmp ecx
 
 #ifndef __OPTIMIZE_SIZE__
 /* Special case strchr(p,0).  */

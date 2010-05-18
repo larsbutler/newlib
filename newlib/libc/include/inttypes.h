@@ -16,6 +16,7 @@
 #include <stdint.h>
 #define __need_wchar_t
 #include <stddef.h>
+#include <bits/wordsize.h>
 
 #define __STRINGIFY(a) #a
 
@@ -111,14 +112,8 @@
 #define SCNuFAST16	__SCN16(u)
 #define SCNxFAST16	__SCN16(x)
 
-/* 32-bit types */
-#if __have_long32
-#define __PRI32(x) __STRINGIFY(l##x)
-#define __SCN32(x) __STRINGIFY(l##x)
-#else
 #define __PRI32(x) __STRINGIFY(x)
 #define __SCN32(x) __STRINGIFY(x)
-#endif
 
 #define PRId32		__PRI32(d)
 #define PRIi32		__PRI32(i)
@@ -242,6 +237,7 @@
 #define SCNxMAX		__SCNMAX(x)
 
 /* ptr types */
+#if __WORDSIZE == 64
 #if __have_long64
 #define __PRIPTR(x) __STRINGIFY(l##x)
 #define __SCNPTR(x) __STRINGIFY(l##x)
@@ -251,6 +247,12 @@
 #else
 #define __PRIPTR(x) __STRINGIFY(x)
 #define __SCNPTR(x) __STRINGIFY(x)
+#endif
+#elif __WORDSIZE == 32
+#define __PRIPTR(x) __STRINGIFY(x)
+#define __SCNPTR(x) __STRINGIFY(x)
+#else
+#error only 32bit and 64bit architectures supported
 #endif
 
 #define PRIdPTR		__PRIPTR(d)

@@ -10,8 +10,8 @@
 
  /*
  **  jmp_buf:
- **   rbx rbp r12 r13 r14 r15 rsp rip
- **   0   8   16  24  32  40  48  56
+ **   rbx r12 r13 r14 rip ebp esp
+ **   0   8   16  24  32  40  44
  */
 
   #include "x86_64mach.h"
@@ -22,32 +22,33 @@
   SOTYPE_FUNCTION(longjmp)
 
 SYM (setjmp):
-  movq    rbx,  0 (rdi)
-  movq    rbp,  8 (rdi)
-  movq    r12, 16 (rdi)
-  movq    r13, 24 (rdi)
-  movq    r14, 32 (rdi)
-  movq    r15, 40 (rdi)
-  leaq    8 (rsp), rax
-  movq    rax, 48 (rdi)
+  movq    rbx, %nacl:  0 (r15,rdi)
+  movq    r12, %nacl:  8 (r15,rdi)
+  movq    r13, %nacl: 16 (r15,rdi)
+  movq    r14, %nacl: 24 (r15,rdi)
   movq    (rsp), rax
-  movq    rax, 56 (rdi)
+  movq    rax, %nacl: 32 (r15,rdi)
+  leaq    8 (rsp), rax
+  movl    ebp, %nacl: 40 (r15,rdi)
+  movl    eax, %nacl: 44 (r15,rdi)
   movq    $0, rax
-  ret
+  pop     r11
+  nacljmp r11d, r15
 
 SYM (longjmp):
+  movl    edi, edi        /* Sandbox */
   movq    rsi, rax        /* Return value */
 
-  movq     8 (rdi), rbp
+  naclrestbp 40 (r15,rdi), r15
 
   __CLI
-  movq    48 (rdi), rsp
-  pushq   56 (rdi)
-  movq     0 (rdi), rbx
-  movq    16 (rdi), r12
-  movq    24 (rdi), r13
-  movq    32 (rdi), r14
-  movq    40 (rdi), r15
+  naclrestsp 44 (r15,rdi), r15
+  pushq   32 (r15,rdi)
+  movq     0 (r15,rdi), rbx
+  movq     8 (r15,rdi), r12
+  movq    16 (r15,rdi), r13
+  movq    24 (r15,rdi), r14
   __STI
 
-  ret
+  pop     r11
+  nacljmp r11d, r15

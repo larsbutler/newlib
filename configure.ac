@@ -461,7 +461,7 @@ AC_SUBST(EXTRA_CONFIGARGS_LIBJAVA)
 # Disable libmudflap on some systems.
 if test x$enable_libmudflap = x ; then
     case "${target}" in
-    *-*-linux* | *-*-gnu* | *-*-k*bsd*-gnu | bfin*-*-uclinux* | *-*-kopensolaris*-gnu)
+    *-*-linux* | *-*-gnu* | *-*-k*bsd*-gnu | bfin*-*-uclinux* | *-*-kopensolaris*-gnu | *-*-nacl*)
         # Enable libmudflap by default in GNU and friends.
 	;;
     *-*-freebsd*)
@@ -478,7 +478,7 @@ fi
 if test x$enable_libgomp = x ; then
     # Enable libgomp by default on hosted POSIX systems.
     case "${target}" in
-    *-*-linux* | *-*-gnu* | *-*-k*bsd*-gnu | *-*-kopensolaris*-gnu)
+    *-*-linux* | *-*-gnu* | *-*-k*bsd*-gnu | *-*-kopensolaris*-gnu | *-*-nacl*)
 	;;
     *-*-netbsd* | *-*-freebsd* | *-*-openbsd* | *-*-dragonfly*)
 	;;
@@ -674,6 +674,9 @@ case "${target}" in
   *-*-lynxos*)
     noconfigdirs="$noconfigdirs ${libgcj}"
     ;; 
+  *-*-nacl*)
+    noconfigdirs="$noconfigdirs ${libgcj}"
+    ;;
 esac
 
 # Default libgloss CPU subdirectory.
@@ -1030,6 +1033,9 @@ case "${target}" in
     ;;
   vax-*-*)
     noconfigdirs="$noconfigdirs target-newlib target-libgloss"
+    ;;
+  *-*-nacl*)
+    noconfigdirs="$noconfigdirs"
     ;;
 esac
 
@@ -2264,7 +2270,7 @@ case "${target}" in
   mips*-*-*linux* | mips*-*-gnu*)
     target_makefile_frag="config/mt-mips-gnu"
     ;;
-  *-*-linux* | *-*-gnu* | *-*-k*bsd*-gnu | *-*-kopensolaris*-gnu)
+  *-*-linux* | *-*-gnu* | *-*-k*bsd*-gnu | *-*-kopensolaris*-gnu | *-*-nacl*)
     target_makefile_frag="config/mt-gnu"
     ;;
   *-*-aix4.[[3456789]]* | *-*-aix[[56789]].*)

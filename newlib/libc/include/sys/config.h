@@ -80,15 +80,17 @@
 /* in other words, go32 */
 #define _FLOAT_RET double
 #endif
-#if defined(__linux__) || defined(__RDOS__)
+#if (defined(__linux__) || defined(__RDOS__)) && !defined(__native_client__)
 /* we want the reentrancy structure to be returned by a function */
 #define __DYNAMIC_REENT__
 #define HAVE_GETDATE
 #define _HAVE_SYSTYPES
 #define _READ_WRITE_RETURN_TYPE _ssize_t
+#if !defined(__native_client__)
 #define __LARGE64_FILES 1
 /* we use some glibc header files so turn on glibc large file feature */
 #define _LARGEFILE64_SOURCE 1
+#endif  /* __native_client__ */
 #endif
 #endif
 

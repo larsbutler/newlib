@@ -785,6 +785,7 @@ h8500hms
 linux
 m88kbug
 mmixware
+nacl
 netware
 rdos
 rtems
@@ -11793,6 +11794,8 @@ subdirs="$subdirs a29khif"
 	m88kbug) subdirs="$subdirs m88kbug"
  ;;
 	mmixware) subdirs="$subdirs mmixware"
+ ;;
+	nacl) subdirs="$subdirs nacl"
  ;;
 	netware) subdirs="$subdirs netware"
  ;;

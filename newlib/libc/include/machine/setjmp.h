@@ -1,6 +1,11 @@
 
 _BEGIN_STD_C
 
+#if defined(__native_client__)
+# define _setjmp(buf) setjmp(buf)
+# define _longjmp(buf, val) longjmp(buf, val)
+#endif
+
 #if defined(__arm__) || defined(__thumb__)
 /*
  * All callee preserved registers:
@@ -69,7 +74,7 @@ _BEGIN_STD_C
 
 #ifdef __x86_64__
 #define _JBTYPE long long
-#define _JBLEN  8
+#define _JBLEN  6
 #endif
 
 #ifdef __i960__

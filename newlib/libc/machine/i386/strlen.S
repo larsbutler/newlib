@@ -13,6 +13,7 @@
 	.global SYM (strlen)
        SOTYPE_FUNCTION(strlen)
 
+  .p2align NACLENTRYALIGN
 SYM (strlen):
 
 	pushl ebp
@@ -95,4 +96,6 @@ L15:
 	leal -4(ebp),esp
 	popl edi
 	leave
-	ret
+	/* ret */
+  popl ecx
+  nacljmp ecx
