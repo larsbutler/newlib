@@ -345,6 +345,7 @@ case "${host}" in
 	xdr_dir=xdr
 	;;
   *-*-nacl*)
+	newlib_cflags="${newlib_cflags} -DHAVE_NANOSLEEP"
 	sys_dir=nacl
 	posix_dir=posix
 	;;

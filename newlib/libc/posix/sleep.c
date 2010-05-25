@@ -5,7 +5,7 @@
 #ifdef HAVE_NANOSLEEP
 
 #include <errno.h>
-#include <time.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 unsigned sleep(unsigned seconds)
