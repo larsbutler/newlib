@@ -14,8 +14,6 @@
   SOTYPE_FUNCTION(memset)
 
 SYM (memset):
-  movl    esi, esi                /* Only need to do read sandboxing once */
-  addq    r15 ,rsi
   movl    edi, r9d                /* Save return value */
   movl    esi, eax
   movl    edx, ecx

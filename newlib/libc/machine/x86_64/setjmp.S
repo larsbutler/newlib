@@ -36,18 +36,17 @@ SYM (setjmp):
   nacljmp r11d, r15
 
 SYM (longjmp):
-  movl    edi, edi        /* Sandbox */
   movq    rsi, rax        /* Return value */
 
-  naclrestbp 40 (r15,rdi), r15
+  naclrestbp %nacl: 40 (r15,rdi), r15
 
   __CLI
-  naclrestsp 44 (r15,rdi), r15
-  pushq   32 (r15,rdi)
-  movq     0 (r15,rdi), rbx
-  movq     8 (r15,rdi), r12
-  movq    16 (r15,rdi), r13
-  movq    24 (r15,rdi), r14
+  naclrestsp %nacl: 44 (r15,rdi), r15
+  pushq %nacl:  32 (r15,rdi)
+  movq %nacl:    0 (r15,rdi), rbx
+  movq %nacl:    8 (r15,rdi), r12
+  movq %nacl:   16 (r15,rdi), r13
+  movq %nacl:   24 (r15,rdi), r14
   __STI
 
   pop     r11
