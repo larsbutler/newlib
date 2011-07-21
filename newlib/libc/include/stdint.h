@@ -37,6 +37,16 @@ extern "C" {
 #define __have_long32 1
 #endif
 
+/* If both int and long are 32bit wide, newlib sets int32_t to long.
+   If int is 32bit wide, "other C libraries" set int32_t to int.
+   There is a bunch of code out there that relies on int32_t to be int,
+   which is wrong in general, but works fine with "other C libraries" when
+   int is 32bit wide, namely always. Let Native Client be nice to that code.
+   See http://code.google.com/p/nativeclient/issues/detail?id=1173  */
+#ifndef __native_client__
+#define __prefer_long32 __have_long32
+#endif
+
 #if __STDINT_EXP(SCHAR_MAX) == 0x7f
 typedef signed char int8_t ;
 typedef unsigned char uint8_t ;
@@ -75,7 +85,7 @@ typedef uint16_t  	uint_least8_t;
 #endif
 #endif
 
-#if __have_long32
+#if __prefer_long32
 typedef signed long int32_t;
 typedef unsigned long uint32_t;
 #define __int32_t_defined 1
@@ -292,7 +302,7 @@ typedef unsigned long uintptr_t;
 #endif
 
 #if __int32_t_defined
-#if __have_long32
+#if __prefer_long32
 #define INT32_MIN 	 (-2147483647L-1)
 #define INT32_MAX 	 2147483647L
 #define UINT32_MAX       4294967295UL
@@ -304,7 +314,7 @@ typedef unsigned long uintptr_t;
 #endif
 
 #if __int_least32_t_defined
-#if __have_long32
+#if __prefer_long32
 #define INT_LEAST32_MIN  (-2147483647L-1)
 #define INT_LEAST32_MAX  2147483647L
 #define UINT_LEAST32_MAX 4294967295UL
@@ -458,7 +468,7 @@ typedef unsigned long uintptr_t;
 #define UINT16_C(x)	x##U
 #endif
 
-#if __have_long32
+#if __prefer_long32
 #define INT32_C(x)	x##L
 #define UINT32_C(x)	x##UL
 #else
