@@ -30,6 +30,7 @@ struct _reent *_CONST __ATTRIBUTE_IMPURE_PTR__ _global_impure_ptr = &global_impu
 
 /*
  * This function should be called on thread startup (for each thread).
+ * TODO(pasko): make it be called for the main thread.
  */
 void __newlib_thread_init()
 {
@@ -40,16 +41,19 @@ void __newlib_thread_init()
   impure_data._stdin = &impure_data.__sf[0];
   impure_data._stdout = &impure_data.__sf[1];
   impure_data._stderr = &impure_data.__sf[2];
-  impure_data.__sdidinit = _GLOBAL_REENT->__sdidinit;
-  impure_data.__cleanup = _GLOBAL_REENT->__cleanup;
-  impure_data.__sglue._niobs = 3;
-  impure_data.__sglue._iobs = &_GLOBAL_REENT->__sf[0];
 
   /* Set the pointer to point to the thread-specific structure. */
   _impure_ptr = &impure_data;
 }
 
+/*
+ * This function should be called on thread exit.
+ */
 void __newlib_thread_exit()
 {
+  /* Unintuitively flush all streams.  
+     See http://code.google.com/p/nativeclient/issues/detail?id=2058 */
+  /* TODO(pasko): find out why fflush-ing all streams
+     does not work from exit.c.  */
   _cleanup_r (_REENT);
 }
