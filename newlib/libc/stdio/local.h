@@ -99,7 +99,7 @@ extern _READ_WRITE_RETURN_TYPE _EXFUN(__swrite64,(struct _reent *, void *,
 #define CHECK_INIT(ptr, fp) \
   do						\
     {						\
-      if ((ptr) && !(ptr)->__sdidinit)		\
+      if (ptr)					\
 	__sinit (ptr);				\
     }						\
   while (0)

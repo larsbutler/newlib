@@ -28,20 +28,12 @@ extern struct _reent reent_data __attribute__ ((alias("impure_data")));
 __thread struct _reent *__ATTRIBUTE_IMPURE_PTR__ _impure_ptr = -1; //NULL; - try to avoid tbss until its alignment is fixed
 struct _reent *_CONST __ATTRIBUTE_IMPURE_PTR__ _global_impure_ptr = &global_impure_data;
 
+
 /*
  * This function should be called on thread startup (for each thread).
- * TODO(pasko): make it be called for the main thread.
  */
 void __newlib_thread_init()
 {
-  /*
-   * Fix the initialization - REENT_INIT pointed
-   * the pointers to the global structure.
-   */
-  impure_data._stdin = &impure_data.__sf[0];
-  impure_data._stdout = &impure_data.__sf[1];
-  impure_data._stderr = &impure_data.__sf[2];
-
   /* Set the pointer to point to the thread-specific structure. */
   _impure_ptr = &impure_data;
 }
@@ -51,9 +43,4 @@ void __newlib_thread_init()
  */
 void __newlib_thread_exit()
 {
-  /* Unintuitively flush all streams.  
-     See http://code.google.com/p/nativeclient/issues/detail?id=2058 */
-  /* TODO(pasko): find out why fflush-ing all streams
-     does not work from exit.c.  */
-  _cleanup_r (_REENT);
 }

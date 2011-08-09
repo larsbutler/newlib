@@ -108,10 +108,10 @@ _DEFUN(__sfp, (d),
   int n;
   struct _glue *g;
 
+  CHECK_INIT(_GLOBAL_REENT, NULL);
+
   __sfp_lock_acquire ();
 
-  if (!_GLOBAL_REENT->__sdidinit)
-    __sinit (_GLOBAL_REENT);
   for (g = &_GLOBAL_REENT->__sglue;; g = g->_next)
     {
       for (fp = g->_iobs, n = g->_niobs; --n >= 0; fp++)
@@ -162,8 +162,7 @@ _VOID
 _DEFUN(_cleanup_r, (ptr),
        struct _reent *ptr)
 {
-  /* _CAST_VOID _fwalk(ptr, fclose); */
-  _CAST_VOID _fwalk (ptr, fflush);	/* Invoked from __newlib_thread_exit (). */
+  _CAST_VOID _fwalk(ptr, fclose);
 }
 
 #ifndef _REENT_ONLY
@@ -182,11 +181,16 @@ _VOID
 _DEFUN(__sinit, (s),
        struct _reent *s)
 {
-  __sinit_lock_acquire ();
+  if (s != _GLOBAL_REENT)
+    __sinit (_GLOBAL_REENT);
+
+  if (s == _GLOBAL_REENT)
+    __sinit_lock_acquire ();
 
   if (s->__sdidinit)
     {
-      __sinit_lock_release ();
+      if (s == _GLOBAL_REENT)
+        __sinit_lock_release ();
       return;
     }
 
@@ -197,7 +201,12 @@ _DEFUN(__sinit, (s),
   s->__sglue._next = NULL;
 #ifndef _REENT_SMALL
   s->__sglue._niobs = 3;
-  s->__sglue._iobs = &s->__sf[0];
+  s->__sglue._iobs = &_GLOBAL_REENT->__sf[0];
+
+  /* For _GLOBAL_REENT the _std* pointers are set by _REENT_INIT.  */
+  s->_stdin = _GLOBAL_REENT->_stdin;
+  s->_stdout = _GLOBAL_REENT->_stdout;
+  s->_stderr = _GLOBAL_REENT->_stderr;
 #else
   s->__sglue._niobs = 0;
   s->__sglue._iobs = NULL;
@@ -206,25 +215,28 @@ _DEFUN(__sinit, (s),
   s->_stderr = __sfp(s);
 #endif
 
-  std (s->_stdin,  __SRD, 0, s);
+  /* Initialize FILE* for standard in/out/err, only once for _GLOBAL_REENT.  */
+  if (s == _GLOBAL_REENT) {
+    std (s->_stdin,  __SRD, 0, s);
 
-  /* On platforms that have true file system I/O, we can verify
-     whether stdout is an interactive terminal or not, as part of
-     __smakebuf on first use of the stream.  For all other platforms,
-     we will default to line buffered mode here.  Technically, POSIX
-     requires both stdin and stdout to be line-buffered, but tradition
-     leaves stdin alone on systems without fcntl.  */
+    /* On platforms that have true file system I/O, we can verify
+       whether stdout is an interactive terminal or not, as part of
+       __smakebuf on first use of the stream.  For all other platforms,
+       we will default to line buffered mode here.  Technically, POSIX
+       requires both stdin and stdout to be line-buffered, but tradition
+       leaves stdin alone on systems without fcntl.  */
 #ifdef HAVE_FCNTL
-  std (s->_stdout, __SWR, 1, s);
+    std (s->_stdout, __SWR, 1, s);
 #else
-  std (s->_stdout, __SWR | __SLBF, 1, s);
+    std (s->_stdout, __SWR | __SLBF, 1, s);
 #endif
 
-  /* POSIX requires stderr to be opened for reading and writing, even
-     when the underlying fd 2 is write-only.  */
-  std (s->_stderr, __SRW | __SNBF, 2, s);
+    /* POSIX requires stderr to be opened for reading and writing, even
+       when the underlying fd 2 is write-only.  */
+    std (s->_stderr, __SRW | __SNBF, 2, s);
 
-  __sinit_lock_release ();
+    __sinit_lock_release ();
+  }
 }
 
 #ifndef __SINGLE_THREAD__

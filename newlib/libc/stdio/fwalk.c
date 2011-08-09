@@ -27,8 +27,8 @@ static char sccsid[] = "%W% (Berkeley) %G%";
 #include <errno.h>
 #include "local.h"
 
-int
-_DEFUN(_fwalk, (ptr, function),
+static int
+_DEFUN(__fwalk, (ptr, function),
        struct _reent *ptr _AND
        register int (*function) (FILE *))
 {
@@ -44,6 +44,8 @@ _DEFUN(_fwalk, (ptr, function),
    * Avoid locking this list while walking it or else you will
    * introduce a potential deadlock in [at least] refill.c.
    */
+  CHECK_INIT(ptr, NULL);
+
   for (g = &ptr->__sglue; g != NULL; g = g->_next)
     for (fp = g->_iobs, n = g->_niobs; --n >= 0; fp++)
       if (fp->_flags != 0)
@@ -57,8 +59,8 @@ _DEFUN(_fwalk, (ptr, function),
 
 /* Special version of __fwalk where the function pointer is a reentrant
    I/O function (e.g. _fclose_r).  */
-int
-_DEFUN(_fwalk_reent, (ptr, reent_function),
+static int
+_DEFUN(__fwalk_reent, (ptr, reent_function),
        struct _reent *ptr _AND
        register int (*reent_function) (struct _reent *, FILE *))
 {
@@ -74,6 +76,8 @@ _DEFUN(_fwalk_reent, (ptr, reent_function),
    * Avoid locking this list while walking it or else you will
    * introduce a potential deadlock in [at least] refill.c.
    */
+  CHECK_INIT(ptr, NULL);
+
   for (g = &ptr->__sglue; g != NULL; g = g->_next)
     for (fp = g->_iobs, n = g->_niobs; --n >= 0; fp++)
       if (fp->_flags != 0)
@@ -81,6 +85,46 @@ _DEFUN(_fwalk_reent, (ptr, reent_function),
           if (fp->_flags != 0 && fp->_flags != 1 && fp->_file != -1)
             ret |= (*reent_function) (ptr, fp);
         }
+
+  return ret;
+}
+
+int
+_DEFUN(_fwalk, (ptr, function),
+       struct _reent *ptr _AND
+       register int (*function)(FILE *))
+{
+  register int ret = 0;
+
+  CHECK_INIT(ptr, NULL);
+
+  __sfp_lock_acquire ();
+
+  /* Must traverse given list for streams.  Note that _GLOBAL_REENT
+     only walked once in exit().  */
+  ret |= __fwalk (ptr, function);
+
+  __sfp_lock_release ();
+
+  return ret;
+}
+
+/* Special version of _fwalk which handles a function pointer to a
+   reentrant I/O function (e.g. _fclose_r).  */
+int
+_DEFUN(_fwalk_reent, (ptr, reent_function),
+       struct _reent *ptr _AND
+       register int (*reent_function) (struct _reent *, FILE *))
+{
+  register int ret = 0;
+
+  __sfp_lock_acquire ();
+
+  /* Must traverse given list for streams.  Note that _GLOBAL_REENT
+     only walked once in exit().  */
+  ret |= __fwalk_reent (ptr, reent_function);
+
+  __sfp_lock_release ();
 
   return ret;
 }
