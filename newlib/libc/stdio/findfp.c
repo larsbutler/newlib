@@ -107,6 +107,7 @@ _DEFUN(__sfp, (d),
   FILE *fp;
   int n;
   struct _glue *g;
+  int found_fp = 0;
 
   CHECK_INIT(_GLOBAL_REENT, NULL);
 
@@ -115,8 +116,13 @@ _DEFUN(__sfp, (d),
   for (g = &_GLOBAL_REENT->__sglue;; g = g->_next)
     {
       for (fp = g->_iobs, n = g->_niobs; --n >= 0; fp++)
-	if (fp->_flags == 0)
-	  goto found;
+	{
+	  _flockfile(fp);
+	  found_fp = (fp->_flags == 0);
+	  _funlockfile(fp);
+	  if (found_fp)
+	    goto found;
+	}
       if (g->_next == NULL &&
 	  (g->_next = __sfmoreglue (d, NDYNAMIC)) == NULL)
 	break;
