@@ -1,3 +1,82 @@
+2012-01-13  Yaakov Selkowitz  <yselkowitz@users.sourceforge.net>
+
+	* libc/stdio/sprintf.c: Document 'm' conversion specifier.
+	* libc/stdio/swprintf.c: Ditto.
+	* libc/stdio/vfprintf.c (_VFPRINTF_R) [_GLIBC_EXTENSION]: Handle 'm'
+	conversion specifier.
+	* libc/stdio/vfwprintf.c (_VFWPRINTF_R) [_GLIBC_EXTENSION]: Ditto.
+
+2012-01-12  Yaakov Selkowitz  <yselkowitz@users.sourceforge.net>
+
+	* libc/include/tgmath.h: New header.
+
+2012-01-09  Yaakov Selkowitz  <yselkowitz@users.sourceforge.net>
+
+	* libc/include/sys/unistd.h [__CYGWIN__] (get_current_dir_name):
+	Declare.
+
+2012-01-09  Yaakov Selkowitz  <yselkowitz@users.sourceforge.net>
+
+	* libc/include/complex.h: Fix "/*" within comment warning.
+
+2012-01-09  Corinna Vinschen  <vinschen@redhat.com>
+
+	* libc/include/process.h: Remove Cygwin-only header.
+
+2012-01-03  Viachaslau Kulakouski  <Viachaslau.Kulakouski@oracle.com>
+
+	* libc/stdlib/__atexit.c: Refer to __atexit_lock instead of lock.
+
+2011-12-20  Aleksandr Platonov  <pam@oktetlabs.ru>
+
+	* libc/stdio/fvwrite.c (__sfvwrite_r): Set __SMBF flag to avoid double 
+	free in fclose.  Enhance comment.
+
+2011-12-19  Jeff Johnston  <jjohnstn@redhat.com>
+
+	* NEWS: Update with 1.20.0 info.
+	* README: Ditto.
+	* acinclude.m4: Change version number to 1.20.0.
+	* aclocal.m4: Regenerated.
+	* configure: Ditto.
+	* Makefile.in: Regenerated.
+	* doc/aclocal.m4: Ditto.
+	* doc/configure: Ditto.
+	* libc/*/aclocal.m4: Ditto.
+	* libc/*/configure: Ditto.
+	* libc/libc.texinfo: Ditto.
+	* libm/*/aclocal.m4: Ditto.
+	* libm/*/configure: Ditto.
+	* libm/libm.texinfo: Ditto.
+	* libc/sys/linux/shared.ld: Add VERS_1.20
+
+2011-12-13  Richard Earnshaw  <rearnsha@arm.com>
+	    Thomas Klein  <th.r.klein@web.de>
+
+	* libc/sys/arm/crt0.S: Manually set the target architecture
+	when compiling for Thumb1 on EABI targets.
+	Don't use SWI on M-profile cores.
+	Avoid v6-only Thumb-1 MOV instruction.
+
+2011-12-12  Akio Idehara  <zbe64533@gmail.com>
+
+	* libc/time/strftime.c (get_era_info): Fix off-by-one error in month
+	calculation.
+
+2011-12-06  Chris Johns  <chrisj@rtems.org>
+
+	* libc/iconv/Makefile.am (stmp-def): Use $(MAKE) rather than make.
+	* libc/iconv/Makefile.in: Regenerate.
+
+2011-11-28  DJ Delorie  <dj@redhat.com>
+
+	* configure.host: Add rl78.
+	* libc/include/machine/ieeefp.h: Add rl78 support.
+	* libc/include/machine/setjmp.h: Add rl78 support.
+	* libc/machine/configure.in: Add rl78.
+	* libc/machine/rl78: New directory.
+	* MAINTAINERS (rl78): Add myself as RL78 maintainer.
+
 2011-11-08  Corinna Vinschen  <vinschen@redhat.com>
 
 	* libc/iconv/ccs/Makefile.am: Add missing backslash.
