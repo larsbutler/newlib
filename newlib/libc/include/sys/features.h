@@ -186,6 +186,11 @@ extern "C" {
 
 #endif /* __CYGWIN__ */
 
+#ifdef __native_client__
+# define _NACL_POSIX_CLOCK      1
+# define _POSIX_MONOTONIC_CLOCK 1
+#endif /* __native_client__ */
+
 /* Per the permission given in POSIX.1-2008 section 2.2.1, define
  * _POSIX_C_SOURCE if _XOPEN_SOURCE is defined and _POSIX_C_SOURCE is not.
  * (_XOPEN_SOURCE indicates that XSI extensions are desired by an application.)

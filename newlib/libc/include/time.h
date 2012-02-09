@@ -135,7 +135,7 @@ extern __IMPORT char *_tzname[2];
 #include <cygwin/time.h>
 #endif /*__CYGWIN__*/
 
-#if defined(_POSIX_TIMERS)
+#if defined(_POSIX_TIMERS) || defined(_NACL_POSIX_CLOCK)
 
 #include <signal.h>
 
@@ -143,12 +143,15 @@ extern __IMPORT char *_tzname[2];
 extern "C" {
 #endif
 
+#if defined(_POSIX_TIMERS)
 /* Clocks, P1003.1b-1993, p. 263 */
-
 int _EXFUN(clock_settime, (clockid_t clock_id, const struct timespec *tp));
+#endif
+/* subset of clock interface that NaCl currently provides */
 int _EXFUN(clock_gettime, (clockid_t clock_id, struct timespec *tp));
 int _EXFUN(clock_getres,  (clockid_t clock_id, struct timespec *res));
 
+#if defined(_POSIX_TIMERS)
 /* Create a Per-Process Timer, P1003.1b-1993, p. 264 */
 
 int _EXFUN(timer_create,
@@ -165,7 +168,7 @@ int _EXFUN(timer_settime,
    struct itimerspec *ovalue));
 int _EXFUN(timer_gettime, (timer_t timerid, struct itimerspec *value));
 int _EXFUN(timer_getoverrun, (timer_t timerid));
-
+#endif  /* _POSIX_TIMERS */
 /* High Resolution Sleep, P1003.1b-1993, p. 269 */
 
 int _EXFUN(nanosleep, (const struct timespec  *rqtp, struct timespec *rmtp));
@@ -173,7 +176,7 @@ int _EXFUN(nanosleep, (const struct timespec  *rqtp, struct timespec *rmtp));
 #ifdef __cplusplus
 }
 #endif
-#endif /* _POSIX_TIMERS */
+#endif /* _POSIX_TIMERS || _NACL_POSIX_CLOCK */
 
 #if defined(_POSIX_CLOCK_SELECTION)
 
@@ -213,7 +216,7 @@ extern "C" {
 
 /* Manifest Constants, P1003.1b-1993, p. 262 */
 
-#define CLOCK_REALTIME (clockid_t)1
+#define CLOCK_REALTIME (clockid_t)0
 
 /* Flag indicating time is "absolute" with respect to the clock
    associated with a time.  */
@@ -248,7 +251,7 @@ extern "C" {
  *      as a clock whose value cannot be set via clock_settime() and which 
  *          cannot have backward clock jumps. */
 
-#define CLOCK_MONOTONIC (clockid_t)4
+#define CLOCK_MONOTONIC (clockid_t)1
 
 #endif
 
