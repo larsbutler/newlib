@@ -371,6 +371,19 @@
 #define __SMALL_BITFIELDS	/* 16 Bit INT */
 #endif
 
+/* This must appear last, since it can be triggered
+   in addition to another case handled above. */
+#ifdef __native_client__
+/* Prevent re-definition error. */
+#undef __IEEE_BIG_ENDIAN
+#undef __IEEE_LITTLE_ENDIAN
+#ifdef __LITTLE_ENDIAN__
+# define __IEEE_LITTLE_ENDIAN
+#else
+# define __IEEE_BIG_ENDIAN
+#endif
+#endif
+
 #ifndef __IEEE_BIG_ENDIAN
 #ifndef __IEEE_LITTLE_ENDIAN
 #error Endianess not declared!!
@@ -379,4 +392,3 @@
 
 #endif /* not __IEEE_LITTLE_ENDIAN */
 #endif /* not __IEEE_BIG_ENDIAN */
-

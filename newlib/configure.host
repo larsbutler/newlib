@@ -163,6 +163,8 @@ case "${host_cpu}" in
   iq2000)
 	machine_dir=iq2000
 	;;
+  le32)
+	;;
   lm32)
 	machine_dir=lm32
 	;;

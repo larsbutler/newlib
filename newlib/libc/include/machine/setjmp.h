@@ -280,6 +280,15 @@ _BEGIN_STD_C
 #define _JBLEN 0x44
 #endif
 
+/* This must appear last to override the arch-specific size set above. */
+#ifdef __native_client__
+/* On Native Client, jmp_buf should be 1K in size, 64-bit aligned. */
+#undef _JBTYPE
+#define _JBTYPE  long long
+#undef _JBLEN
+#define _JBLEN   (1024/sizeof(_JBTYPE))
+#endif
+
 #ifdef _JBLEN
 #ifdef _JBTYPE
 typedef	_JBTYPE jmp_buf[_JBLEN];
