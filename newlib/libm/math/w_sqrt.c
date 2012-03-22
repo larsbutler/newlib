@@ -62,6 +62,18 @@ PORTABILITY
 #endif
 {
 #ifdef _IEEE_LIBM
+#ifdef __llvm__
+	/*
+	 * Use the LLVM intrinsic to compute sqrt wherever possible.
+	 * It is only defined for -0.0 and greater.
+	 * For portable native client this allows the generation of portable
+	 * bitcode that still uses hardware sqrt on platforms that support it.
+	 */
+	if (x>=(float)-0.0) {
+	  double llvm_sqrt(double) asm("llvm.sqrt.f64");
+	  return llvm_sqrt(x);
+	}
+#endif
 	return __ieee754_sqrt(x);
 #else
 	struct exception exc;

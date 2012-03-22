@@ -28,6 +28,18 @@
 #endif
 {
 #ifdef _IEEE_LIBM
+#ifdef __llvm__
+	/*
+	 * Use the LLVM intrinsic to compute sqrt wherever possible.
+	 * It is only defined for -0.0 and greater.
+	 * For portable native client this allows the generation of portable
+	 * bitcode that still uses hardware sqrt on platforms that support it.
+	 */
+	if (x>=(float)-0.0) {
+	  float llvm_sqrtf(float) asm("llvm.sqrt.f32");
+	  return llvm_sqrtf(x);
+	}
+#endif
 	return __ieee754_sqrtf(x);
 #else
 	float z;
