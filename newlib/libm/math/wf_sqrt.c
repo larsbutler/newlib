@@ -44,7 +44,22 @@
 #else
 	float z;
 	struct exception exc;
+#ifdef __llvm__
+	/*
+	 * Use the LLVM intrinsic to compute sqrt wherever possible.
+	 * It is only defined for -0.0 and greater.
+	 * For portable native client this allows the generation of portable
+	 * bitcode that still uses hardware sqrt on platforms that support it.
+	 */
+	if (x>=(float)-0.0) {
+	  float llvm_sqrtf(float) asm("llvm.sqrt.f32");
+	  z = llvm_sqrtf(x);
+	} else {
+	  z = __ieee754_sqrtf(x);
+        }
+#else  /* __llvm__ */
 	z = __ieee754_sqrtf(x);
+#endif  /* __llvm__ */
 	if(_LIB_VERSION == _IEEE_ || isnan(x)) return z;
 	if(x<(float)0.0) {
             /* sqrtf(negative) */
