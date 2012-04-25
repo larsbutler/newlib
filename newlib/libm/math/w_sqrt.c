@@ -69,7 +69,7 @@ PORTABILITY
 	 * For portable native client this allows the generation of portable
 	 * bitcode that still uses hardware sqrt on platforms that support it.
 	 */
-	if (x>=(float)-0.0) {
+	if (x>=-0.0) {
 	  double llvm_sqrt(double) asm("llvm.sqrt.f64");
 	  return llvm_sqrt(x);
 	}
@@ -85,7 +85,7 @@ PORTABILITY
 	 * For portable native client this allows the generation of portable
 	 * bitcode that still uses hardware sqrt on platforms that support it.
 	 */
-	if (x>=(float)-0.0) {
+	if (x>=-0.0) {
 	  double llvm_sqrt(double) asm("llvm.sqrt.f64");
 	  z = llvm_sqrt(x);
 	} else {
