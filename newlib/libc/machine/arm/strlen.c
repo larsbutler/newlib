@@ -51,6 +51,7 @@ strlen (const char* str)
 #else
   const char* end;
   asm ("1:\n\t"
+       SFI_BREG (%0)
        "ldrb	%1, [%0], #1\n\t"
        "cmp	%1, #0\n\t"
        "bne	1b"
@@ -121,6 +122,7 @@ strlen (const char* str)
 #ifdef _ISA_ARM_7
        /* yes, get more data... */
        "itt	eq\n\t"
+       SFI_BREG (addr)
        "ldreq	data, [addr], #4\n\t"
        /* and 4 more bytes  */
        "addeq	len, len, #4\n\t"
@@ -136,6 +138,7 @@ strlen (const char* str)
 #endif
        "itt	eq\n\t"
        /* yes, get more data... */
+       SFI_BREG (addr)
        "ldreq	data, [addr], #4\n\t"
        /* and 4 more bytes  */
        "addeq	len, len, #4\n\t"

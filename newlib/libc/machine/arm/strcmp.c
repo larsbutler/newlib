@@ -50,7 +50,7 @@
 #define magic2(REG) #REG ", lsl #7"
 #endif
 
-int 
+int
 __attribute__((naked)) strcmp (const char* s1, const char* s2)
 {
   asm(
@@ -65,8 +65,10 @@ __attribute__((naked)) strcmp (const char* s1, const char* s2)
       "ands	r2, r0, #3\n\t"
       "bic	r0, r0, #3\n\t"
       "bic	r1, r1, #3\n\t"
+      SFI_BREG (r0)
       "ldr	ip, [r0], #4\n\t"
       "it	eq\n\t"
+      SFI_BREG (r1)
       "ldreq	r3, [r1], #4\n\t"
       "beq	1f\n\t"
       /* Although s1 and s2 have identical initial alignment, they are
@@ -78,6 +80,7 @@ __attribute__((naked)) strcmp (const char* s1, const char* s2)
       "lsl	r2, r2, #3\n\t"
       "mvn	r3, #"MSB"\n\t"
       SHFT2LSB"	r2, r3, r2\n\t"
+      SFI_BREG (r1)
       "ldr	r3, [r1], #4\n\t"
       "orr	ip, ip, r2\n\t"
       "orr	r3, r3, r2\n"
@@ -99,7 +102,9 @@ __attribute__((naked)) strcmp (const char* s1, const char* s2)
       /* check for any zero bytes in first word */
       "biceq	r2, r2, ip\n\t"
       "tsteq	r2, "magic2(r4)"\n\t"
+      SFI_BREG (r0)
       "ldreq	ip, [r0], #4\n\t"
+      SFI_BREG (r1)
       "ldreq	r3, [r1], #4\n\t"
       "beq	4b\n"
  "2:\n\t"
@@ -151,7 +156,9 @@ __attribute__((naked)) strcmp (const char* s1, const char* s2)
       "bx	lr"
 #else
  "3:\n\t"
+      SFI_BREG (r0)
       "ldrb	r2, [r0], #1\n\t"
+      SFI_BREG (r1)
       "ldrb	r3, [r1], #1\n\t"
       "cmp	r2, #1\n\t"
       "it	cs\n\t"
@@ -165,7 +172,7 @@ __attribute__((naked)) strcmp (const char* s1, const char* s2)
 
 #if !(defined(__OPTIMIZE_SIZE__) || defined (PREFER_SIZE_OVER_SPEED) || \
       (defined (__thumb__) && !defined (__thumb2__)))
-static int __attribute__((naked, used)) 
+static int __attribute__((naked, used))
 strcmp_unaligned(const char* s1, const char* s2)
 {
 #if 0
@@ -245,7 +252,7 @@ strcmp_unaligned(const char* s1, const char* s2)
     {
       body (24);
     }
-  
+
   do
     {
 #ifdef __ARMEB__
@@ -273,7 +280,9 @@ strcmp_unaligned(const char* s1, const char* s2)
  "1:\n\t"
       "tst	wp1, #3\n\t"
       "beq	2f\n\t"
+      SFI_BREG (wp1)
       "ldrb	r2, [wp1], #1\n\t"
+      SFI_BREG (wp2)
       "ldrb	r3, [wp2], #1\n\t"
       "cmp	r2, #1\n\t"
       "it	cs\n\t"
@@ -292,7 +301,9 @@ strcmp_unaligned(const char* s1, const char* s2)
 
       "and	t1, wp2, #3\n\t"
       "bic	wp2, wp2, #3\n\t"
+      SFI_BREG (wp1)
       "ldr	w1, [wp1], #4\n\t"
+      SFI_BREG (wp2)
       "ldr	w2, [wp2], #4\n\t"
       "cmp	t1, #2\n\t"
       "beq	2f\n\t"
@@ -308,11 +319,13 @@ strcmp_unaligned(const char* s1, const char* s2)
       "bne	4f\n\t"
       "ands	r3, r3, b1, lsl #7\n\t"
       "it	eq\n\t"
+      SFI_BREG (wp2)
       "ldreq	w2, [wp2], #4\n\t"
       "bne	5f\n\t"
       "eor	t1, t1, w1\n\t"
       "cmp	t1, w2, "SHFT2MSB" #24\n\t"
       "bne	6f\n\t"
+      SFI_BREG (wp1)
       "ldr	w1, [wp1], #4\n\t"
       "b	1b\n"
  "4:\n\t"
@@ -332,6 +345,7 @@ strcmp_unaligned(const char* s1, const char* s2)
       "bics	r3, r3, #0xff000000\n\t"
       "bne	7f\n\t"
 #endif
+      SFI_BREG (wp2)
       "ldrb	w2, [wp2]\n\t"
       SHFT2LSB"	t1, w1, #24\n\t"
 #ifdef __ARMEB__
@@ -355,11 +369,13 @@ strcmp_unaligned(const char* s1, const char* s2)
       "bne	4f\n\t"
       "ands	r3, r3, b1, lsl #7\n\t"
       "it	eq\n\t"
+      SFI_BREG (wp2)
       "ldreq	w2, [wp2], #4\n\t"
       "bne	5f\n\t"
       "eor	t1, t1, w1\n\t"
       "cmp	t1, w2, "SHFT2MSB" #16\n\t"
       "bne	6f\n\t"
+      SFI_BREG (wp1)
       "ldr	w1, [wp1], #4\n\t"
       "b	2b\n"
 
@@ -375,6 +391,7 @@ strcmp_unaligned(const char* s1, const char* s2)
       "lsls	r3, r3, #16\n\t"
       "bne	7f\n\t"
 #endif
+      SFI_BREG (wp2)
       "ldrh	w2, [wp2]\n\t"
       SHFT2LSB"	t1, w1, #16\n\t"
 #ifdef __ARMEB__
@@ -399,11 +416,13 @@ strcmp_unaligned(const char* s1, const char* s2)
       "bne	4f\n\t"
       "ands	r3, r3, b1, lsl #7\n\t"
       "it	eq\n\t"
+      SFI_BREG (wp2)
       "ldreq	w2, [wp2], #4\n\t"
       "bne	5f\n\t"
       "eor	t1, t1, w1\n\t"
       "cmp	t1, w2, "SHFT2MSB" #8\n\t"
       "bne	6f\n\t"
+      SFI_BREG (wp1)
       "ldr	w1, [wp1], #4\n\t"
       "b	3b\n"
  "4:\n\t"
@@ -414,6 +433,7 @@ strcmp_unaligned(const char* s1, const char* s2)
 	 with the bytes 0x01 0x00 */
       "tst	w1, #"LSB"\n\t"
       "beq	7f\n\t"
+      SFI_BREG (wp2)
       "ldr	w2, [wp2], #4\n"
  "6:\n\t"
       SHFT2LSB"	t1, w1, #8\n\t"

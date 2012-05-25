@@ -57,6 +57,18 @@
         .thumb_func
 #endif
 
+#ifdef __native_client__
+#define SFI_BREG(reg)	sfi_breg reg,
+#define IT(insn)
+#ifdef __thumb__
+#error "thumb and native_client are not compatible!"
+#endif
+	.p2align 4
+#else
+#define SFI_BREG(reg)
+#define IT(insn)	insn
+#endif
+
         .global memcpy
         .type   memcpy, %function
 memcpy:
@@ -119,7 +131,9 @@ word_aligned:
            then copy 1 word (4 bytes).  */
         ands    r3, r0, #4
         beq     11f                  /* If dst already two-word aligned.  */
+	SFI_BREG(r1) \
         ldr     r3, [r1], #4
+	SFI_BREG(r0) \
         str     r3, [r0], #4
         subs    r2, r2, #4
         blt     copy_less_than_64
@@ -130,7 +144,9 @@ word_aligned:
         /* Every loop iteration copies 64 bytes.  */
 1:
         .irp    offset, #0, #8, #16, #24, #32, #40, #48, #56
+	SFI_BREG(r1) \
         ldrd    r4, r5, [r1, \offset]
+	SFI_BREG(r0) \
         strd    r4, r5, [r0, \offset]
         .endr
 
@@ -148,7 +164,9 @@ copy_less_than_64:
 
         /* Copy 8 bytes at a time.  */
 2:
+	SFI_BREG(r1) \
         ldrd    r4, r5, [r1], #8
+	SFI_BREG(r0) \
         strd    r4, r5, [r0], #8
         subs    r2, r2, #8
         bge     2b                            /* If there is more to copy.  */
@@ -165,7 +183,9 @@ copy_less_than_8:
         blt     copy_less_than_4
 
         /* Copy 4 bytes.  */
+	SFI_BREG(r1) \
         ldr     r3, [r1], #4
+	SFI_BREG(r0) \
         str     r3, [r0], #4
 
 copy_less_than_4:
@@ -183,20 +203,31 @@ copy_less_than_4:
            Condition ne means the last bit of r2 is 0.
            Condition cs means the second to last bit of r2 is set,
            i.e., r2 is 1 or 3.  */
-        itt     ne
+        IT(itt	ne)
+	SFI_BREG(r1) \
         ldrbne  r3, [r1], #1
+	SFI_BREG(r0) \
         strbne  r3, [r0], #1
 
-        itttt   cs
+        IT(itttt cs)
+	SFI_BREG(r1) \
         ldrbcs  r4, [r1], #1
+	SFI_BREG(r1) \
         ldrbcs  r5, [r1]
+	SFI_BREG(r0) \
         strbcs  r4, [r0], #1
+	SFI_BREG(r0) \
         strbcs  r5, [r0]
 
 return:
         /* Restore registers: optimized pop {r0, r4, r5, pc}   */
         ldrd r4, r5, [sp], #8
+#ifdef __native_client__
+	pop	{r0, lr}
+	sfi_bx	lr
+#else
         pop {r0, pc}           /* This is the only return point of memcpy.  */
+#endif
 
 #ifndef __ARM_FEATURE_UNALIGNED
 
@@ -215,6 +246,7 @@ return:
         bic     r1, r1, #3
 
         /* Initialize the shift queue.  */
+	SFI_BREG(r1) \
         ldr     r5, [r1], #4                   /* Load a word from source.  */
 
         subs    r2, r2, #4
@@ -240,10 +272,12 @@ return:
           Use a partial word from the shift queue.  */
         .irp    offset, #0, #8, #16, #24, #32, #40, #48, #56
         mov     r6, r5, \shiftleft #\pull
+	SFI_BREG(r1) \
         ldrd    r4, r5, [r1, \offset]
         orr     r6, r6, r4, \shiftright #\push
         mov     r7, r4, \shiftleft #\pull
         orr     r7, r7, r5, \shiftright #\push
+	SFI_BREG(r0) \
         strd    r6, r7, [r0, \offset]
         .endr
 
@@ -269,10 +303,12 @@ return:
         /* Copy 8 bytes at a time.
            Use a partial word from the shift queue.  */
         mov     r6, r5, \shiftleft #\pull
+	SFI_BREG(r1) \
         ldrd    r4, r5, [r1], #8
         orr     r6, r6, r4, \shiftright #\push
         mov     r7, r4, \shiftleft #\pull
         orr     r7, r7, r5, \shiftright #\push
+	SFI_BREG(r0) \
         strd    r6, r7, [r0], #8
 
         subs    r2, r2, #8
@@ -301,6 +337,7 @@ return:
         mov     r3, r5, \shiftleft #\pull
         /* Load a word from src, but without writeback
            (this word is not fully written to dst).  */
+	SFI_BREG(r1) \
         ldr     r5, [r1]
 
         /* Restore src offset from word-align.  */
@@ -308,6 +345,7 @@ return:
 
         /* Shift bytes to create one dst word and store it.  */
         orr     r3, r3, r5, \shiftright #\push
+	SFI_BREG(r0) \
         str     r3, [r0], #4
 
         /* Use single byte copying of the remaining bytes.  */
@@ -333,15 +371,21 @@ dst_not_word_aligned:
         cmp     ip, #2
 
        /* Copy byte by byte with conditionals.  */
-        itt     gt
+        IT(itt	gt)
+	SFI_BREG(r1) \
         ldrbgt  r3, [r1], #1
+	SFI_BREG(r0) \
         strbgt  r3, [r0], #1
 
-        itt     ge
+        IT(itt	ge)
+	SFI_BREG(r1) \
         ldrbge  r4, [r1], #1
+	SFI_BREG(r0) \
         strbge  r4, [r0], #1
 
+	SFI_BREG(r1) \
         ldrb    lr, [r1], #1
+	SFI_BREG(r0) \
         strb    lr, [r0], #1
 
        /* Update the count.
@@ -370,7 +414,9 @@ src_not_word_aligned:
 7:
         /* Copy 64 bytes in every loop iteration.  */
         .irp    offset, #0, #4, #8, #12, #16, #20, #24, #28, #32, #36, #40, #44, #48, #52, #56, #60
+	SFI_BREG(r1) \
         ldr     r3, [r1, \offset]
+	SFI_BREG(r0) \
         str     r3, [r0, \offset]
         .endr
 
@@ -385,10 +431,12 @@ src_not_word_aligned:
         adds    r2, r2, #60
         blt     copy_less_than_4
 
-9:      
+9:
        /* Get here if there is less than 64 but at least 4 bytes to copy,
           where the number of bytes to copy is r2+4.  */
+	SFI_BREG(r1) \
         ldr     r3, [r1], #4
+	SFI_BREG(r0) \
         str     r3, [r0], #4
         subs    r2, r2, #4
         bge     9b

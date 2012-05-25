@@ -64,7 +64,9 @@
 /* Now some macros for common instruction sequences.  */
 #ifdef __ASSEMBLER__
 .macro  RETURN     cond=
-#if defined (_ISA_ARM_4T) || defined (_ISA_THUMB_1)
+#if defined (__native_client__)
+	sfi_bx\cond	lr
+#elif defined (_ISA_ARM_4T) || defined (_ISA_THUMB_1)
 	bx\cond	lr
 #else
 	mov\cond pc, lr
@@ -79,7 +81,9 @@
 
 #else
 asm(".macro  RETURN	cond=\n\t"
-#if defined (_ISA_ARM_4T) || defined (_ISA_THUMB_1)
+#if defined (__native_client__)
+    "sfi_bx\\cond	lr\n\t"
+#elif defined (_ISA_ARM_4T) || defined (_ISA_THUMB_1)
     "bx\\cond	lr\n\t"
 #else
     "mov\\cond	pc, lr\n\t"
@@ -93,6 +97,16 @@ asm(".macro optpld	base, offset=#0\n\t"
 #endif
     ".endm"
     );
+#endif
+
+#if defined (__native_client__)
+# ifdef __ASSEMBLER__
+#  define SFI_BREG(reg)	sfi_breg reg,
+# else
+#  define SFI_BREG(reg)	"sfi_breg " #reg ","
+# endif
+#else
+#define SFI_BREG(reg)
 #endif
 
 #endif /* ARM_ASM__H */

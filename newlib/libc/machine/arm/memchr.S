@@ -60,11 +60,12 @@
 #define CHARTSTMASK(c) 1<<(c*8)
 #endif
 	.text
-	.thumb
 
-@ ---------------------------------------------------------------------------
+#ifndef __native_client__
+	.thumb
 	.thumb_func
-	.align 2
+#endif
+
 	.p2align 4,,15
 	.global memchr
 	.type memchr,%function
@@ -76,91 +77,125 @@ memchr:
 	and	r1,r1,#0xff	@ Don't trust the caller to pass a char
 
 	cmp	r2,#16		@ If short don't bother with anything clever
-	blt	20f 
+	blt	20f
 
 	tst	r0, #7		@ If it's already aligned skip the next bit
 	beq	10f
 
 	@ Work up to an aligned point
 5:
+	SFI_BREG(r0) \
 	ldrb	r3, [r0],#1
 	subs	r2, r2, #1
 	cmp	r3, r1
 	beq	50f		@ If it matches exit found
+#ifdef __native_client__
+	cmp	r2, #0
+	beq	40f		@ If we run off the end, exit not found
+	tst	r0, #7
+	bne	5b		@ If not aligned yet then do next byte
+#else
 	tst	r0, #7
 	cbz	r2, 40f		@ If we run off the end, exit not found
 	bne	5b		@ If not aligned yet then do next byte
-	
+#endif
+
 10:
 	@ We are aligned, we know we have at least 8 bytes to work with
 	push	{r4,r5,r6,r7}
+	all1	.req	r5
+	rp0	.req	r6
+	rp1	.req	r7
 	orr	r1, r1, r1, lsl #8	@ expand the match word across all bytes
 	orr	r1, r1, r1, lsl #16
 	bic	r4, r2, #7	@ Number of double words to work with * 8
-	mvns	r7, #0		@ all F's
+	mvns	all1, #0		@ all F's
 	movs	r3, #0
-	
+
 15:
-	ldrd    r5,r6,[r0],#8
+	SFI_BREG(r0) \
+	ldrd    rp0,rp1,[r0],#8
+#ifndef __native_client__
 	subs	r4, r4, #8
-	eor	r5,r5, r1	@ r5,r6 have 00's where bytes match the target
-	eor	r6,r6, r1
-	uadd8	r5, r5, r7	@ Par add 0xff - sets GE bits for bytes!=0
-	sel	r5, r3, r7	@ bytes are 00 for none-00 bytes,
+#endif
+	eor	rp0,rp0, r1	@ rp0,rp1 have 00's where bytes match the target
+	eor	rp1,rp1, r1
+	uadd8	rp0, rp0, all1	@ Par add 0xff - sets GE bits for bytes!=0
+	sel	rp0, r3, all1	@ bytes are 00 for none-00 bytes,
 				@ or ff for 00 bytes - NOTE INVERSION
-	uadd8	r6, r6, r7	@ Par add 0xff - sets GE bits for bytes!=0
-	sel	r6, r5, r7	@ chained....bytes are 00 for none-00 bytes
+	uadd8	rp1, rp1, all1	@ Par add 0xff - sets GE bits for bytes!=0
+	sel	rp1, rp0, all1	@ chained....bytes are 00 for none-00 bytes
 				@ or ff for 00 bytes - NOTE INVERSION
-	cbnz	r6, 60f
+#ifdef __native_client__
+	cmp	rp1, #0
+	bne	60f
+	subs	r4, r4, #8
+	bne	15b
+#else
+	cbnz	rp1, 60f
 	bne	15b		@ (Flags from the subs above)
+#endif
 
 	pop	{r4,r5,r6,r7}
 	and	r1,r1,#0xff	@ r1 back to a single character
 	and	r2,r2,#7	@ Leave the count remaining as the number
 				@ after the double words have been done
- 
+
 20:
+#ifdef __native_client__
+	cmp	r2, #0
+	beq	40f		@ 0 length or hit the end already then not found
+#else
 	cbz	r2, 40f		@ 0 length or hit the end already then not found
+#endif
 
 21:  @ Post aligned section, or just a short call
+	SFI_BREG(r0) \
 	ldrb	r3,[r0],#1
+#ifdef __native_client__
+	eors	r3,r3,r1	@ r3 = 0 if match
+	beq	50f
+	subs	r2,r2,#1
+	bne	21b
+#else
 	subs	r2,r2,#1
 	eor	r3,r3,r1	@ r3 = 0 if match - doesn't break flags from sub
 	cbz	r3, 50f
 	bne	21b		@ on r2 flags
+#endif
 
 40:
 	movs	r0,#0		@ not found
-	bx	lr
+	RETURN
 
 50:
 	subs	r0,r0,#1	@ found
-	bx	lr
+	RETURN
 
-60:  @ We're here because the fast path found a hit 
+60:  @ We're here because the fast path found a hit
      @ now we have to track down exactly which word it was
-	@ r0 points to the start of the double word after the one tested
-	@ r5 has the 00/ff pattern for the first word, r6 has the chained value
-	cmp	r5, #0
+     @ r0 points to the start of the double word after the one tested
+     @ rp0 has the 00/ff pattern for the first word, rp1 has the chained value
+	cmp	rp0, #0
 	itte	eq
-	moveq	r5, r6		@ the end is in the 2nd word
+	moveq	rp0, rp1	@ the end is in the 2nd word
 	subeq	r0,r0,#3	@ Points to 2nd byte of 2nd word
 	subne	r0,r0,#7	@ or 2nd byte of 1st word
 
 	@ r0 currently points to the 2nd byte of the word containing the hit
-	tst	r5, # CHARTSTMASK(0)	@ 1st character
+	tst	rp0, # CHARTSTMASK(0)	@ 1st character
 	bne	61f
 	adds	r0,r0,#1
-	tst	r5, # CHARTSTMASK(1)	@ 2nd character
+	tst	rp0, # CHARTSTMASK(1)	@ 2nd character
 	ittt	eq
 	addeq	r0,r0,#1
-	tsteq	r5, # (3<<15)		@ 2nd & 3rd character
+	tsteq	rp0, # (3<<15)		@ 2nd & 3rd character
 	@ If not the 3rd must be the last one
 	addeq	r0,r0,#1
 
 61:
 	pop	{r4,r5,r6,r7}
 	subs	r0,r0,#1
-	bx	lr
+	RETURN
 
 #endif

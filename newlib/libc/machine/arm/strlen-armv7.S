@@ -62,7 +62,14 @@
 	.syntax unified
 	.arch armv7-a
 
+#ifdef __native_client__
+#define SFI_BREG(reg)	sfi_breg reg,
+#define	RET		sfi_bx lr
+#else
+#define SFI_BREG(reg)
+#define	RET		bx lr
 	.thumb_func
+#endif
 	.align 2
 	.p2align 4,,15
 	.global strlen
@@ -78,13 +85,22 @@ strlen:
 	beq	2f
 
 1:
+	SFI_BREG(r1) \
 	ldrb	r2, [r1], #1
+#ifdef __native_client__
+	cmp	r2, #0
+	beq	10f		@ Exit if we found the 0
+	tst	r1, #7		@ Hit alignment yet?
+	bne	1b
+#else
 	tst	r1, #7		@ Hit alignment yet?
 	cbz	r2, 10f		@ Exit if we found the 0
 	bne	1b
+#endif
 
 	@ So we're now aligned
 2:
+	SFI_BREG(r1) \
 	ldrd    r2,r3,[r1],#8
 	uadd8	r2, r2, r6	@ Par add 0xff - sets the GE bits for bytes!=0
 	sel	r2, r4, r6	@ bytes are 00 for none-00 bytes,
@@ -98,7 +114,7 @@ strlen:
 strlenendtmp:
 	@ One (or more) of the bytes we loaded was 0 - but which one?
 	@ r2 has the mask corresponding to the first loaded word
-	@ r3 has a combined mask of the two words - but if r2 was all-non 0 
+	@ r3 has a combined mask of the two words - but if r2 was all-non 0
 	@ then it's just the 2nd words
 	cmp	r2, #0
 	itte	eq
@@ -122,6 +138,6 @@ strlenendtmp:
 	sub	r0, r1, r0
 	subs	r0, r0, #1
 	pop	{ r4, r6 }
-	bx	lr
+	RET
 
 #endif

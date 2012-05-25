@@ -61,13 +61,16 @@ strcpy (char* dst, const char* src)
 
        "str	r4, [sp, #-4]!\n\t"
        "tst	r1, #4\n\t"
+       SFI_BREG (r1)
        "ldr	r3, [r1], #4\n\t"
        "beq	2f\n\t"
        "sub	r2, r3, "magic1(r5)"\n\t"
        "bics	r2, r2, r3\n\t"
        "tst	r2, "magic2(r5)"\n\t"
        "itt	eq\n\t"
+       SFI_BREG (ip)
        "streq	r3, [ip], #4\n\t"
+       SFI_BREG (r1)
        "ldreq	r3, [r1], #4\n"
        "bne	1f\n\t"
        /* Inner loop.  We now know that r1 is 64-bit aligned, so we
@@ -76,17 +79,21 @@ strcpy (char* dst, const char* src)
        ".p2align 2\n"
   "2:\n\t"
        "optpld	r1, #8\n\t"
+       SFI_BREG (r1)
        "ldr	r4, [r1], #4\n\t"
        "sub	r2, r3, "magic1(r5)"\n\t"
        "bics	r2, r2, r3\n\t"
        "tst	r2, "magic2(r5)"\n\t"
        "sub	r2, r4, "magic1(r5)"\n\t"
        "bne	1f\n\t"
+       SFI_BREG (ip)
        "str	r3, [ip], #4\n\t"
        "bics	r2, r2, r4\n\t"
        "tst	r2, "magic2(r5)"\n\t"
        "itt	eq\n\t"
+       SFI_BREG (r1)
        "ldreq	r3, [r1], #4\n\t"
+       SFI_BREG (ip)
        "streq	r4, [ip], #4\n\t"
        "beq	2b\n\t"
        "mov	r3, r4\n"
@@ -94,6 +101,7 @@ strcpy (char* dst, const char* src)
 #ifdef __ARMEB__
        "rors	r3, r3, #24\n\t"
 #endif
+       SFI_BREG (ip)
        "strb	r3, [ip], #1\n\t"
        "tst	r3, #0xff\n\t"
 #ifdef __ARMEL__
@@ -111,7 +119,9 @@ strcpy (char* dst, const char* src)
   "3:\n\t"
        "tst	r1, #1\n\t"
        "beq	1f\n\t"
+       SFI_BREG (r1)
        "ldrb	r2, [r1], #1\n\t"
+       SFI_BREG (ip)
        "strb	r2, [ip], #1\n\t"
        "cmp	r2, #0\n\t"
        "it	eq\n"
@@ -119,18 +129,23 @@ strcpy (char* dst, const char* src)
   "1:\n\t"
        "tst	r1, #2\n\t"
        "beq	5b\n\t"
+       SFI_BREG (r1)
        "ldrh	r2, [r1], #2\n\t"
 #ifdef __ARMEB__
        "tst	r2, #0xff00\n\t"
        "iteet	ne\n\t"
+       SFI_BREG (ip)
        "strneh	r2, [ip], #2\n\t"
        "lsreq	r2, r2, #8\n\t"
+       SFI_BREG (ip)
        "streqb	r2, [ip]\n\t"
        "tstne	r2, #0xff\n\t"
 #else
        "tst	r2, #0xff\n\t"
        "itet	ne\n\t"
+       SFI_BREG (ip)
        "strneh	r2, [ip], #2\n\t"
+       SFI_BREG (ip)
        "streqb	r2, [ip]\n\t"
        "tstne	r2, #0xff00\n\t"
 #endif
@@ -140,7 +155,9 @@ strcpy (char* dst, const char* src)
        /* src and dst do not have a common word-alignement.  Fall back to
 	  byte copying.  */
   "4:\n\t"
+       SFI_BREG (r1)
        "ldrb	r2, [r1], #1\n\t"
+       SFI_BREG (ip)
        "strb	r2, [ip], #1\n\t"
        "cmp	r2, #0\n\t"
        "bne	4b\n\t"
@@ -149,7 +166,9 @@ strcpy (char* dst, const char* src)
 #elif !defined (__thumb__) || defined (__thumb2__)
        "mov	r3, r0\n\t"
   "1:\n\t"
+       SFI_BREG (r1)
        "ldrb	r2, [r1], #1\n\t"
+       SFI_BREG (r3)
        "strb	r2, [r3], #1\n\t"
        "cmp	r2, #0\n\t"
        "bne	1b\n\t"
@@ -157,8 +176,10 @@ strcpy (char* dst, const char* src)
 #else
        "mov	r3, r0\n\t"
   "1:\n\t"
+       SFI_BREG (r1)
        "ldrb	r2, [r1]\n\t"
        "add	r1, r1, #1\n\t"
+       SFI_BREG (r3)
        "strb	r2, [r3]\n\t"
        "add	r3, r3, #1\n\t"
        "cmp	r2, #0\n\t"
