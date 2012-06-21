@@ -64,7 +64,7 @@ _BEGIN_STD_C
 
 #if defined(__CYGWIN__) && !defined (_JBLEN)
 #define _JBLEN (13 * 4)
-#elif defined (__i386__)
+#elif defined (__i386__) && !defined (__native_client__)
 #if defined(__unix__) || defined(__rtems__)
 # define _JBLEN	9
 #else
@@ -210,7 +210,7 @@ _BEGIN_STD_C
 #endif
 
 #if (defined(__CR16__) || defined(__CR16C__) ||defined(__CR16CP__))
-/* r6, r7, r8, r9, r10, r11, r12 (r12L, r12H), 
+/* r6, r7, r8, r9, r10, r11, r12 (r12L, r12H),
  * r13 (r13L, r13H), ra(raL, raH), sp(spL, spH) */
 #define _JBLEN 14
 #define _JBTYPE unsigned short
@@ -239,7 +239,7 @@ _BEGIN_STD_C
 #endif
 
 #ifdef __SPU__
-#define _JBLEN 50 
+#define _JBLEN 50
 #define _JBTYPE __vector signed int
 #endif
 
