@@ -83,14 +83,12 @@ SYM (memset):
 	movl ecx,edx
 	shrl $2,ecx
 	andl $3,edx
-	rep
-	stosl
+	rep stosl
 	movl edx,ecx
 #endif /* not __OPTIMIZE_SIZE__ */
 
 .L19:
-	rep
-	stosb
+	rep stosb
 
 	movl 8(ebp),eax
 

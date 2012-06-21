@@ -43,8 +43,7 @@ SYM (memcmp):
 	jne BYTECMP
 	movl ecx,ebx
 	shrl $2,ecx		/* calculate number of long words to compare */
-	repz
-	cmpsl
+	repz cmpsl
 	jz L5
 	subl $4,esi
 	subl $4,edi
@@ -57,8 +56,7 @@ L5:
 #endif /* not __OPTIMIZE_SIZE__ */
 
 BYTECMP: /* compare any unaligned bytes or remainder bytes */
-	repz
-	cmpsb
+	repz cmpsb
 
 /* set output to be < 0 if less than, 0 if equal, or > 0 if greater than */
 L3:

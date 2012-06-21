@@ -26,8 +26,7 @@ SYM (strlen):
 	movl edx,edi
 	movl $4294967295,ecx
 	xor eax,eax
-	repnz
-	scasb
+	repnz scasb
 #else
 /* Modern x86 hardware is much faster at double-word
    manipulation than with bytewise repnz scasb.  */

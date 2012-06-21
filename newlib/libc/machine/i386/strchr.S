@@ -124,8 +124,7 @@ L25:
 	cld
 	movl $-1,ecx
 	xor eax,eax
-	repnz
-	scasb
+	repnz scasb
 	leal -1(edi),eax
 	jmp L19
 #endif

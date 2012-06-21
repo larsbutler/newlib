@@ -29,8 +29,7 @@ SYM (memchr):
 #ifdef __OPTIMIZE_SIZE__
 
 	cld
-	repnz
-	scasb
+	repnz scasb
 
 	setnz	dl
 	decl	edi
