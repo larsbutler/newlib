@@ -70,5 +70,4 @@ SYM (memcpy):
 	popl esi
 	leave
 	/* ret */
-  popl ecx
-  nacljmp ecx
+	naclret

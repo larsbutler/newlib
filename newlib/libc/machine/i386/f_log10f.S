@@ -37,7 +37,6 @@ SYM (_f_log10f):
 
 	leave
 	/* ret */
-  popl ecx
-  nacljmp ecx
+	naclret
 
 #endif

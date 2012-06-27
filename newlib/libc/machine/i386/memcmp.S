@@ -73,5 +73,4 @@ L4:
 	popl ebx
 	leave
 	/* ret */
-  popl ecx
-  nacljmp ecx
+	naclret

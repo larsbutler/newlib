@@ -113,8 +113,7 @@ L19:
 	popl edi
 	leave
 	/* ret */
-  popl ecx
-  nacljmp ecx
+	naclret
 
 #ifndef __OPTIMIZE_SIZE__
 /* Special case strchr(p,0).  */

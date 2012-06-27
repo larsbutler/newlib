@@ -96,5 +96,4 @@ L15:
 	popl edi
 	leave
 	/* ret */
-  popl ecx
-  nacljmp ecx
+	naclret

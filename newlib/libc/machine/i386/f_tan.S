@@ -34,7 +34,6 @@ SYM (_f_tan):
 
 	leave
 	/* ret */
-  popl ecx
-  nacljmp ecx
+	naclret
 
 #endif

@@ -61,8 +61,7 @@ SYM (setjmp):
 	movl	$0,eax
 	leave
 	/* ret */
-  popl ecx
-  nacljmp ecx
+	naclret
 
   .p2align NACLENTRYALIGN
 SYM (longjmp):
@@ -91,5 +90,4 @@ SYM (longjmp):
 	movl	20(edi),edi
 
 	/* ret */
-  popl ecx
-  nacljmp ecx
+	naclret

@@ -139,5 +139,4 @@ SYM (memmove):
 	popl esi
 	leave
 	/* ret */
-  popl ecx
-  nacljmp ecx
+	naclret

@@ -10,7 +10,7 @@
 
 #if !defined(_SOFT_FLOAT)
 
-/* 
+/*
 Fast version of atan2 using Intel float instructions.
 
    double _f_atan2 (double y, double x);
@@ -18,7 +18,7 @@ Fast version of atan2 using Intel float instructions.
 Function computes arctan ( y / x ).
 There is no error checking or setting of errno.
 */
-	
+
 	#include "i386mach.h"
 
 	.global SYM (_f_atan2)
@@ -34,7 +34,6 @@ SYM (_f_atan2):
 
 	leave
 	/* ret */
-  popl ecx
-  nacljmp ecx
+	naclret
 
 #endif

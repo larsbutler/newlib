@@ -45,7 +45,6 @@ SYM (_f_frexp):
 
 	leave
 	/* ret */
-  popl ecx
-  nacljmp ecx
+	naclret
 
 #endif
