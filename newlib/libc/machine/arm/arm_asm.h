@@ -61,6 +61,17 @@
 #endif
 
 
+#if defined (__native_client__)
+# ifdef __ASSEMBLER__
+#  define SFI_BREG(reg)	sfi_breg reg,
+# else
+#  define SFI_BREG(reg)	"sfi_breg " #reg ","
+# endif
+#else
+#define SFI_BREG(reg)
+#endif
+
+
 /* Now some macros for common instruction sequences.  */
 #ifdef __ASSEMBLER__
 .macro  RETURN     cond=
@@ -75,7 +86,7 @@
 
 .macro optpld	base, offset=#0
 #if defined (_ISA_ARM_7)
-	pld	[\base, \offset]
+	SFI_BREG(\base) pld	[\base, \offset]
 #endif
 .endm
 
@@ -93,20 +104,10 @@ asm(".macro  RETURN	cond=\n\t"
 
 asm(".macro optpld	base, offset=#0\n\t"
 #if defined (_ISA_ARM_7)
-    "pld	[\\base, \\offset]\n\t"
+    SFI_BREG (\\base) "pld	[\\base, \\offset]\n\t"
 #endif
     ".endm"
     );
-#endif
-
-#if defined (__native_client__)
-# ifdef __ASSEMBLER__
-#  define SFI_BREG(reg)	sfi_breg reg,
-# else
-#  define SFI_BREG(reg)	"sfi_breg " #reg ","
-# endif
-#else
-#define SFI_BREG(reg)
 #endif
 
 #endif /* ARM_ASM__H */
