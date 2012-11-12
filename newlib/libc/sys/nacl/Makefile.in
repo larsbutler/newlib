@@ -55,7 +55,7 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 lib_a_AR = $(AR) $(ARFLAGS)
 lib_a_LIBADD =
-am_lib_a_OBJECTS = lib_a-dummysys.$(OBJEXT)
+am_lib_a_OBJECTS = lib_a-dummysys.$(OBJEXT) lib_a-aeabi_atexit.$(OBJEXT)
 lib_a_OBJECTS = $(am_lib_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir)
 depcomp =
@@ -181,7 +181,7 @@ AUTOMAKE_OPTIONS = cygnus
 INCLUDES = $(NEWLIB_CFLAGS) $(CROSS_CFLAGS) $(TARGET_CFLAGS)
 AM_CCASFLAGS = $(INCLUDES)
 noinst_LIBRARIES = lib.a
-lib_a_SOURCES = dummysys.c
+lib_a_SOURCES = dummysys.c aeabi_atexit.c
 lib_a_CCASFLAGS = $(AM_CCASFLAGS)
 lib_a_CFLAGS = $(AM_CFLAGS)
 ACLOCAL_AMFLAGS = -I ../../.. -I ../../../..
@@ -226,7 +226,7 @@ $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-lib.a: $(lib_a_OBJECTS) $(lib_a_DEPENDENCIES) 
+lib.a: $(lib_a_OBJECTS) $(lib_a_DEPENDENCIES)
 	-rm -f lib.a
 	$(lib_a_AR) lib.a $(lib_a_OBJECTS) $(lib_a_LIBADD)
 	$(RANLIB) lib.a
@@ -248,6 +248,12 @@ lib_a-dummysys.o: dummysys.c
 
 lib_a-dummysys.obj: dummysys.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-dummysys.obj `if test -f 'dummysys.c'; then $(CYGPATH_W) 'dummysys.c'; else $(CYGPATH_W) '$(srcdir)/dummysys.c'; fi`
+
+lib_a-aeabi_atexit.o: aeabi_atexit.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-aeabi_atexit.o `test -f 'aeabi_atexit.c' || echo '$(srcdir)/'`aeabi_atexit.c
+
+lib_a-aeabi_atexit.obj: aeabi_atexit.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-aeabi_atexit.obj `if test -f 'aeabi_atexit.c'; then $(CYGPATH_W) 'aeabi_atexit.c'; else $(CYGPATH_W) '$(srcdir)/aeabi_atexit.c'; fi`
 uninstall-info-am:
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
