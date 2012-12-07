@@ -181,32 +181,34 @@ endif # USE_LIBTOOL
 
 include $(srcdir)/../../Makefile.shared
 
+#CFLAGS_enums = -fshort-enums
+
 # This rule is needed so that libtool compiles vfiprintf before vfprintf. Otherwise
 # libtool moves vfprintf.o and subsequently can't find it.
 
 $(lpfx)vfprintf.$(oext): vfprintf.c
-	$(LIB_COMPILE) -fshort-enums -c $(srcdir)/vfprintf.c -o $@
+	$(LIB_COMPILE) $(CFLAGS_enums) -c $(srcdir)/vfprintf.c -o $@
 
 $(lpfx)vfiprintf.$(oext): vfprintf.c
-	$(LIB_COMPILE) -fshort-enums -DINTEGER_ONLY -c $(srcdir)/vfprintf.c -o $@
+	$(LIB_COMPILE) $(CFLAGS_enums) -DINTEGER_ONLY -c $(srcdir)/vfprintf.c -o $@
 
 $(lpfx)svfprintf.$(oext): vfprintf.c
-	$(LIB_COMPILE) -fshort-enums -DSTRING_ONLY -c $(srcdir)/vfprintf.c -o $@
+	$(LIB_COMPILE) $(CFLAGS_enums) -DSTRING_ONLY -c $(srcdir)/vfprintf.c -o $@
 
 $(lpfx)svfiprintf.$(oext): vfprintf.c
-	$(LIB_COMPILE) -fshort-enums -DINTEGER_ONLY -DSTRING_ONLY -c $(srcdir)/vfprintf.c -o $@
+	$(LIB_COMPILE) $(CFLAGS_enums) -DINTEGER_ONLY -DSTRING_ONLY -c $(srcdir)/vfprintf.c -o $@
 
 $(lpfx)vfwprintf.$(oext): vfwprintf.c
-	$(LIB_COMPILE) -fshort-enums -c $(srcdir)/vfwprintf.c -o $@
+	$(LIB_COMPILE) $(CFLAGS_enums) -c $(srcdir)/vfwprintf.c -o $@
 
 $(lpfx)vfiwprintf.$(oext): vfwprintf.c
-	$(LIB_COMPILE) -fshort-enums -DINTEGER_ONLY -c $(srcdir)/vfwprintf.c -o $@
+	$(LIB_COMPILE) $(CFLAGS_enums) -DINTEGER_ONLY -c $(srcdir)/vfwprintf.c -o $@
 
 $(lpfx)svfwprintf.$(oext): vfwprintf.c
-	$(LIB_COMPILE) -fshort-enums -DSTRING_ONLY -c $(srcdir)/vfwprintf.c -o $@
+	$(LIB_COMPILE) $(CFLAGS_enums) -DSTRING_ONLY -c $(srcdir)/vfwprintf.c -o $@
 
 $(lpfx)svfiwprintf.$(oext): vfwprintf.c
-	$(LIB_COMPILE) -fshort-enums -DINTEGER_ONLY -DSTRING_ONLY -c $(srcdir)/vfwprintf.c -o $@
+	$(LIB_COMPILE) $(CFLAGS_enums) -DINTEGER_ONLY -DSTRING_ONLY -c $(srcdir)/vfwprintf.c -o $@
 
 $(lpfx)vfscanf.$(oext): vfscanf.c
 	$(LIB_COMPILE) -c $(srcdir)/vfscanf.c -o $@

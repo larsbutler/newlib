@@ -257,7 +257,7 @@ CHEWOUT_FILES= \
 	wcstoull.def 	\
 	system.def	\
 	wcstombs.def	\
-	wctomb.def	
+	wctomb.def
 
 SUFFIXES = .def
 
@@ -274,11 +274,13 @@ doc: $(CHEWOUT_FILES)
 
 CLEANFILES = $(CHEWOUT_FILES) *.ref
 
+#CFLAGS_enums = -fshort-enums
+
 $(lpfx)dtoa.$(oext): dtoa.c mprec.h
 $(lpfx)ldtoa.$(oext): ldtoa.c mprec.h
 $(lpfx)ecvtbuf.$(oext): ecvtbuf.c mprec.h
 $(lpfx)mbtowc_r.$(oext): mbtowc_r.c mbctype.h
-	$(LIB_COMPILE) -c -fshort-enums $(srcdir)/mbtowc_r.c -o $@
+	$(LIB_COMPILE) -c $(CFLAGS_enums) $(srcdir)/mbtowc_r.c -o $@
 
 $(lpfx)mprec.$(oext): mprec.c mprec.h
 $(lpfx)strtod.$(oext): strtod.c mprec.h
